@@ -8,6 +8,8 @@ import collections
 import numpy as np
 import six
 
+from initialization import Initialization
+
 import chainer
 from chainer.backends import cuda
 import chainer.functions as F
@@ -143,6 +145,8 @@ def convert(batch, device):
         contexts = cuda.to_gpu(contexts)
     return center, contexts
 
+def words_to_indexes(words: list): list
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -185,16 +189,15 @@ def main():
     print('Output type: {}'.format(args.out_type))
     print('')
 
+    init = Initialization("dataset", "training.txt", "validation.txt", "test.txt", "vocab.txt")
+    init.create_vocabulary()
+
     # Load the dataset
-    train, val, _ = chainer.datasets.get_ptb_words()
+    train, val, _ = init.get_words()
 
     # TODO: Words from input, map them to ints
 
-    # for t in train:
-    #     print(t)
-    #     print(type(t))
-
-    # for v in val:
+    # for v in train:
     #     print(v)
     #     print(type(v))
 
@@ -205,32 +208,15 @@ def main():
     if args.test:
         train = train[:100]
         val = val[:100]
-    # # open("input.txt", 'r').read()
-    # doc = open("input.txt", 'r').read()
-    #
-    # def tokenize(text):
-    #     import re
-    #     # obtains tokens with a least 1 alphabet
-    #     pattern = re.compile(r'[A-Za-z]+[\w^\']*|[\w^\']*[A-Za-z]+[\w^\']*')
-    #     return pattern.findall(text.lower())
-    #
-    # def mapping(tokens):
-    #     word_to_id = dict()
-    #     id_to_word = dict()
-    #
-    #     for i, token in enumerate(set(tokens)):
-    #         word_to_id[token] = i
-    #         id_to_word[i] = token
-    #
-    #     return word_to_id, id_to_word
-    #
-    # words = tokenize(doc)
-    # word1, word2 = mapping(words)
 
-    vocab = chainer.datasets.get_ptb_words_vocabulary()
-    index2word = {wid: word for word, wid in six.iteritems(vocab)}
+    vocab = init.get_vocabulary()
+    index2word = {wid: word for word, wid in six.iteritems(vocab)}  # list of indexes mapped to the words
 
+    # vocab = chainer.datasets.get_ptb_words_vocabulary() # list of words
+    # index2word = {wid: word for word, wid in six.iteritems(vocab)} # list of indexes mapped to the words
 
+    for word in vocab:
+        print(word)
 
     print('n_vocab: %d' % n_vocab)
     print('data length: %d' % len(train))
