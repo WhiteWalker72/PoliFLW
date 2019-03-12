@@ -1,25 +1,23 @@
-import os
-
+import glob
 import numpy
-
-from chainer.dataset import download
 
 
 class Initialization:
 
-    def __init__(self, path: str, training: str, validation: str, test: str, vocab: str):
-        self.training = path + "/" + training
-        self.validation = path + "/" + validation
-        self.test = path + "/" + test
-        self.vocab = path + "/" + vocab
+    def __init__(self):
+        self.path = "dataset"
+        self.training_files = [f.replace("\\", "/") for f in glob.glob("dataset\\training\\*.txt")]
+        self.test = self.path + "/" + "test.txt"
+        self.validation = self.path + "/" + "validation.txt"
+        self.vocab = self.path + "/" + "vocabulary.txt"
 
     def get_words(self) -> [list, list, list]:
-        train = self._retrieve_words(self.training)
-        valid = self._retrieve_words(self.validation)
-        test = None #self._retrieve_words(self.test)
+        train = self._retrieve_words(self.training_files)
+        valid = self._retrieve_words([self.validation])
+        test = None
         return train, valid, test
 
-    def get_vocabulary(self) -> list:
+    def get_vocabulary(self):
         vocab = {}
         with open(self.vocab) as f:
             for i, word in enumerate(f):
@@ -27,7 +25,7 @@ class Initialization:
         return vocab
 
     def create_vocabulary(self) -> None:
-        words = self._load_words(self.training)
+        words = self._load_words(self.training_files)
         vocab = {}
         index = 0
         with open(self.vocab, 'w') as f:
@@ -37,24 +35,21 @@ class Initialization:
                     index += 1
                     f.write(word + '\n')
 
-    def _retrieve_words(self, file: str):
+    def _retrieve_words(self, files: list):
         vocab = self.get_vocabulary()
-        words = self._load_words(file)
+        words = self._load_words(files)
         x = numpy.empty(len(words), dtype=numpy.int32)
         for i, word in enumerate(words):
             x[i] = vocab[word]
         return x
-        #
-        # numpy.savez_compressed(file, x=x)
-        # return numpy.load({'x': x})
 
-    def _load_words(self, file: str) -> list:
+    def _load_words(self, files: list) -> list:
         words = []
-        with open(file) as words_file:
-            for line in words_file:
-                if line:
-                    words += self._tokenize(line)  #+= line.strip().split()
-                    words.append('<eos>')
+        for file in files:
+            with open(file, encoding="utf8") as words_file:
+                for line in words_file:
+                    if line:
+                        words += self._tokenize(line)
         return words
 
     def _tokenize(self, text: str) -> list:
@@ -62,4 +57,3 @@ class Initialization:
         # obtains tokens with a least 1 alphabet
         pattern = re.compile(r'[A-Za-z]+[\w^\']*|[\w^\']*[A-Za-z]+[\w^\']*')
         return pattern.findall(text.lower())
-

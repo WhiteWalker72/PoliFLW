@@ -8,7 +8,7 @@ import collections
 import numpy as np
 import six
 
-from initialization import Initialization
+from wordvec_analysis.src.initialization import Initialization
 
 import chainer
 from chainer.backends import cuda
@@ -145,8 +145,6 @@ def convert(batch, device):
         contexts = cuda.to_gpu(contexts)
     return center, contexts
 
-def words_to_indexes(words: list): list
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -189,17 +187,12 @@ def main():
     print('Output type: {}'.format(args.out_type))
     print('')
 
-    init = Initialization("dataset", "training.txt", "validation.txt", "test.txt", "vocab.txt")
+    # Initialize the dataset
+    init = Initialization()
     init.create_vocabulary()
 
     # Load the dataset
     train, val, _ = init.get_words()
-
-    # TODO: Words from input, map them to ints
-
-    # for v in train:
-    #     print(v)
-    #     print(type(v))
 
     counts = collections.Counter(train)
     counts.update(collections.Counter(val))
@@ -210,13 +203,7 @@ def main():
         val = val[:100]
 
     vocab = init.get_vocabulary()
-    index2word = {wid: word for word, wid in six.iteritems(vocab)}  # list of indexes mapped to the words
-
-    # vocab = chainer.datasets.get_ptb_words_vocabulary() # list of words
-    # index2word = {wid: word for word, wid in six.iteritems(vocab)} # list of indexes mapped to the words
-
-    for word in vocab:
-        print(word)
+    index2word = {wid: word for word, wid in six.iteritems(vocab)}
 
     print('n_vocab: %d' % n_vocab)
     print('data length: %d' % len(train))
