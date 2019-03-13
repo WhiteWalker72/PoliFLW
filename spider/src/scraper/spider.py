@@ -1,13 +1,21 @@
-from src.items import ScrapeResult
+from src.scraper.items import ScrapeResult
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
+from src.data.url_reader import websites
 
 
 class WebSpider(CrawlSpider):
     name = 'webspider'
-    start_urls = ['https://swollwacht.nl/']
+    start_urls = []
+
+    for website in websites:
+        if len(website) > 0 and website.find('//') >= 0:
+            start_urls.append(website)
+
     allowed_domains = [x[x.index('//')+2:len(x)-1] for x in start_urls]
-    print(allowed_domains)
+
+    # TODO: remove this line so the scraper will scrape all websites
+    start_urls = ['https://swollwacht.nl/']
     custom_settings = {
         'DEPTH_LIMIT': 1
     }
