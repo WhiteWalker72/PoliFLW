@@ -1,20 +1,24 @@
-import scrapy
 from src.items import ScrapeResult
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
 
 
-class WebSpider(scrapy.Spider):
+class WebSpider(CrawlSpider):
     name = 'webspider'
-    allowed_domains = ["google.com"]
-    start_urls = ['https://www.google.com/']
+    start_urls = ['https://swollwacht.nl/']
+    allowed_domains = [x[x.index('//')+2:len(x)-1] for x in start_urls]
+    print(allowed_domains)
+    custom_settings = {
+        'DEPTH_LIMIT': 1
+    }
+    rules = (
+        Rule(LinkExtractor(allow_domains=allowed_domains, unique=True), callback='parse_item', follow=True),
+    )
 
-    def parse(self, response):
-        # follow pagination links
-        for href in response.css('li.next a::attr(href)'):
-            yield response.follow(href, self.parse)
-
+    @staticmethod
+    def parse_item(response):
         doc = ScrapeResult()
         doc['url'] = response.url
-        doc['title'] = response.xpath('//div/p/text()').extract()
+        doc['title'] = response.xpath("//h1/text()").getall()
         doc['text'] = response.xpath('//body//p//text()').extract()
-        yield doc  # Will go to the pipeline
-
+        yield doc
