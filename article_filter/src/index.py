@@ -25,23 +25,24 @@ def similar(a, b):
 
 
 def similar_message_exists(new_message, ratio):
-    consumer = KafkaConsumer(
-        UNIQUE_TOPIC,
-        bootstrap_servers=[config.CONNECTION['host'] + ':' + config.CONNECTION['port']],
-        auto_offset_reset='earliest',
-        enable_auto_commit=False,
-        group_id='unique_consumer',
-        consumer_timeout_ms=300,
-        value_deserializer=lambda x: loads(x.decode(constants.UTF_ENCODING)))
-
-    message_text = ' '.join(new_message['text'])
-
-    for message in consumer:
-        message = ' '.join(dict(message.value)['text'])
-        if message == message_text:
-            return True
-        if similar(message, message_text) >= ratio:
-            return True
+    return True
+    # consumer = KafkaConsumer(
+    #     UNIQUE_TOPIC,
+    #     bootstrap_servers=[config.CONNECTION['host'] + ':' + config.CONNECTION['port']],
+    #     auto_offset_reset='earliest',
+    #     enable_auto_commit=False,
+    #     group_id='unique_consumer',
+    #     consumer_timeout_ms=300,
+    #     value_deserializer=lambda x: loads(x.decode(constants.UTF_ENCODING)))
+    #
+    # message_text = ' '.join(new_message['text'])
+    #
+    # for message in consumer:
+    #     message = ' '.join(dict(message.value)['text'])
+    #     if message == message_text:
+    #         return True
+    #     if similar(message, message_text) >= ratio:
+    #         return True
 
 
 def main():
