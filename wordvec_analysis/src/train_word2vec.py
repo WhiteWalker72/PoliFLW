@@ -189,7 +189,6 @@ def main():
 
     # Initialize the dataset
     init = Initialization()
-    init.create_vocabulary()
 
     # Load the dataset
     train, val, _ = init.get_words()
