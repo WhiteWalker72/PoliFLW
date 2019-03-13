@@ -11,8 +11,8 @@ def main():
 
     process.crawl(WebSpider)
     process.start()
-    print(results)
+    print(results) # TODO: remove the results array to lower memory usage
 
 
 if __name__ == "__main__":
-        main()
+    main()

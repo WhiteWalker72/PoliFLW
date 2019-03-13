@@ -9,5 +9,5 @@ class ResultPipeline(object):
 
     @staticmethod
     def process_item(item, spider):
-        # producer.send_message(dict(item))
+        producer.send_message(dict(item))
         results.append(dict(item))
