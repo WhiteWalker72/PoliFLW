@@ -1,5 +1,5 @@
 import six
-from article_detection.src.detection import Detection
+from src.detection import Detection
 
 detection = Detection()
 try:
