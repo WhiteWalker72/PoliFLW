@@ -1,5 +1,6 @@
 import pickle
 import re, string
+from typing import List
 
 
 class Detection:
@@ -11,7 +12,7 @@ class Detection:
     def _get_model(filename: str):
         return pickle.load(open(filename, 'rb'))
 
-    def is_political(self, data: str) -> bool:
+    def is_political(self, data: List[str]) -> bool:
 
         re_tok = re.compile(f'([{string.punctuation}“”¨«»®´·º½¾¿¡§£₤‘’])')
 
@@ -20,7 +21,7 @@ class Detection:
 
         vector = pickle.load(open("model/vector.sav", 'rb'))
         vector.tokenizer = tokenize
-        tfidf = vector.transform([data])
+        tfidf = vector.transform(data)
         result = self.model.predict(tfidf)[0]
         if result >= 0.5:
             return True
