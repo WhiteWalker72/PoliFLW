@@ -1,10 +1,12 @@
-import src.persistence.articles_service as articles_service
+import src.persistence.article_service as articles_service
 from kafka import KafkaConsumer
 import src.config as config
 import src.constants as constants
 from json import loads
 from src.producer import Producer
 from src.similarity import is_similar
+import src.api.service as api
+from threading import Thread
 
 ARTICLES_TOPIC = 'articles-input'
 UNIQUE_TOPIC = 'unique-articles-input'
@@ -34,7 +36,7 @@ def publish_message(message):
     unique_producer.send_message(message)
 
 
-def main():
+def start_consumer():
     print('Started ' + ARTICLES_TOPIC + ' consumer')
 
     for message in unfiltered_consumer:
@@ -64,6 +66,13 @@ def main():
                 articles_service.delete_article(url)
                 articles_service.insert_article(message)
                 publish_message(message)
+
+
+def main():
+    api_thread = Thread(target=api.start_api)
+    api_thread.start()
+    consumer_thread = Thread(target=start_consumer)
+    consumer_thread.start()
 
 
 if __name__ == "__main__":
