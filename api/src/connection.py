@@ -2,8 +2,8 @@ import pymongo
 import urllib
 
 client = pymongo.MongoClient("mongodb+srv://admin:" + urllib.parse.quote("poliflw9@") + "@poliflw-p58zy.mongodb.net/test?retryWrites=true")
-poliflwDB = client["poliflw"]
-sourcesCol = poliflwDB["sourcesCol"]
+db = client["api_service"]
+sources_collection = db["sources"]
 
 
 def get_client():
@@ -11,9 +11,9 @@ def get_client():
 
 
 def get_all_sources():
-    return sourcesCol.find()
+    return sources_collection.find()
 
 
-def insert(newSource):
-    poliflwDB.sourcesCol.insert(newSource)
+def insert(new_source):
+    db.sourcesCol.insert(new_source)
     return True
