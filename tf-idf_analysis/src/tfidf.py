@@ -194,4 +194,3 @@ class TFIDF:
         dataframe['KEYWORDS-TFIDF'] = top_words_per_article_list_tfidf
 
         return dataframe
-

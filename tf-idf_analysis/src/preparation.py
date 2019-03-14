@@ -6,7 +6,6 @@ from nltk.tag.perceptron import PerceptronTagger
 import os
 import pandas as pd
 import re
-from typing import Union
 
 
 class Preparation:

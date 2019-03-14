@@ -2,7 +2,6 @@ import json
 import requests
 
 from analysis import Analysis
-from tfidf import TFIDF
 
 
 def find_all_documents_poliflow():
