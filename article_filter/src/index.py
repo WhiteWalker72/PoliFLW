@@ -1,13 +1,16 @@
+import src.persistence.articles_service as articles_service
 from kafka import KafkaConsumer
 import src.config as config
 import src.constants as constants
-from src.producer import Producer
 from json import loads
-from difflib import SequenceMatcher
+from src.producer import Producer
+from src.similarity import is_similar
 
-ARTICLES_TOPIC = 'articles_input'
+ARTICLES_TOPIC = 'articles-input'
 UNIQUE_TOPIC = 'unique-articles-input'
-SIMILAR_RATIO = 0.8
+MONGO_MIN_SIMILARITY_SCORE = 10
+MIN_SIMILARITY_SCORE = 0.9
+SIMILAR_ARTICLES_LIMIT = 5
 
 unfiltered_consumer = KafkaConsumer(
     ARTICLES_TOPIC,
@@ -20,42 +23,47 @@ unfiltered_consumer = KafkaConsumer(
 unique_producer = Producer(UNIQUE_TOPIC)
 
 
-def similar(a, b):
-    return SequenceMatcher(None, a, b).ratio()
+def format_message(message):
+    message['title'] = ' '.join(message['title'])
+    message['text'] = ' '.join(message['text'])
+    return message
 
 
-def similar_message_exists(new_message, ratio):
-    return True
-    # consumer = KafkaConsumer(
-    #     UNIQUE_TOPIC,
-    #     bootstrap_servers=[config.CONNECTION['host'] + ':' + config.CONNECTION['port']],
-    #     auto_offset_reset='earliest',
-    #     enable_auto_commit=False,
-    #     group_id='unique_consumer',
-    #     consumer_timeout_ms=300,
-    #     value_deserializer=lambda x: loads(x.decode(constants.UTF_ENCODING)))
-    #
-    # message_text = ' '.join(new_message['text'])
-    #
-    # for message in consumer:
-    #     message = ' '.join(dict(message.value)['text'])
-    #     if message == message_text:
-    #         return True
-    #     if similar(message, message_text) >= ratio:
-    #         return True
+def publish_message(message):
+    message.pop('_id', None)
+    unique_producer.send_message(message)
 
 
 def main():
-    print('Started ' + UNIQUE_TOPIC + ' consumer')
+    print('Started ' + ARTICLES_TOPIC + ' consumer')
+
     for message in unfiltered_consumer:
-        message = dict(message.value)
-        if not similar_message_exists(message, SIMILAR_RATIO):
-            unique_producer.send_message(message)
-            print('New message')
-            print(message)
+        message = format_message(dict(message.value))
+        url = message['url']
+        text = message['text']
+
+        existing_article = articles_service.find_article(url)
+        if existing_article is None:
+            similar_articles = articles_service.find_similar_articles(
+                text, 10, MONGO_MIN_SIMILARITY_SCORE
+            )
+            has_similar_article = False
+            for article in similar_articles:
+                if is_similar(article['text'], text, MIN_SIMILARITY_SCORE):
+                    has_similar_article = True
+                    break
+
+            # article does not have any similar articles so insert it as a new article
+            if not has_similar_article:
+                articles_service.insert_article(message)
+                publish_message(message)
+
+        # replace the old article
         else:
-            print('Message already exists')
-            print(message)
+            if existing_article['text'] != text:
+                articles_service.delete_article(url)
+                articles_service.insert_article(message)
+                publish_message(message)
 
 
 if __name__ == "__main__":
