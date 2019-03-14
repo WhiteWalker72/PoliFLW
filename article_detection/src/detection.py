@@ -6,7 +6,7 @@ from typing import List
 class Detection:
 
     def __init__(self):
-        self.model = self._get_model("model/political.sav")
+        self.model = self._get_model("src/model/political.sav")
 
     @staticmethod
     def _get_model(filename: str):
@@ -19,7 +19,7 @@ class Detection:
         def tokenize(s):
             return re_tok.sub(r' \1 ', s).split()
 
-        vector = pickle.load(open("model/vector.sav", 'rb'))
+        vector = pickle.load(open("src/model/vector.sav", 'rb'))
         vector.tokenizer = tokenize
         tfidf = vector.transform(data)
         result = self.model.predict(tfidf)[0]

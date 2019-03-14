@@ -8,7 +8,7 @@ import collections
 import numpy as np
 import six
 
-from wordvec_analysis.src.initialization import Initialization
+from src.initialization import Initialization
 
 import chainer
 from chainer.backends import cuda
