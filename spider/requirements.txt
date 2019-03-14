@@ -1,3 +1,6 @@
 pandas
 scrapy
 kafka-python
+dnspython
+flask
+pymongo

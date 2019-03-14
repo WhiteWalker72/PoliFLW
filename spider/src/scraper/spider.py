@@ -1,17 +1,15 @@
 from src.scraper.items import ScrapeResult
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
-from src.data.url_reader import websites
+from src.persistence.sources_service import get_websites
 
 
 class WebSpider(CrawlSpider):
     name = 'webspider'
-    start_urls = []
-
-    for website in websites:
-        if len(website) > 0 and website.find('//') >= 0:
-            start_urls.append(website)
-
+    start_urls = list(filter(
+        lambda x: x.lower().startswith('http') and len(x) > 0 and x.find('//') >= 0, get_websites()
+    ))
+    print(start_urls)
     allowed_domains = [x[x.index('//')+2:len(x)-1] for x in start_urls]
 
     # TODO: remove this line so the scraper will scrape all websites
