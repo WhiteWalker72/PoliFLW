@@ -34,6 +34,7 @@ class Initialization:
         return files
 
     def get_words(self) -> [list, list, list]:
+        # Get the words from the train, validation and test datasets
         self._create_vocabulary()
         train = self._retrieve_words(self.training_files)
         valid = self._retrieve_words([self.validation])
@@ -59,10 +60,12 @@ class Initialization:
                     f.write(word + '\n')
 
     def _create_poliflw_datasets(self) -> None:
+        # Create some datasets which we will train word2vec on from PoliFLW
         for dataset in self.poliflw_datasets:
             self._create_poliflw_dataset(dataset)
 
     def _create_poliflw_dataset(self, subject: str) -> None:
+        # Create a dataset
         payload = {"query": subject, "size": 100}
         headers = {'content-type': 'application/json'}
 
@@ -74,6 +77,7 @@ class Initialization:
         f.close()
 
     def _retrieve_words(self, files: list):
+        # Get an array of words from the given files
         vocab = self.get_vocabulary()
         words = self._load_words(files)
         x = numpy.empty(len(words), dtype=numpy.int32)
@@ -99,5 +103,6 @@ class Initialization:
 
     @staticmethod
     def _clean_html(text: str) -> str:
+        # Remove HTML code from the datasets
         pattern = re.compile(r'<.*?>')
         return pattern.sub('', text)
