@@ -9,7 +9,13 @@ class Initialization:
 
     training_path = "dataset/training/*.txt"
     api_url = "https://api.poliflw.nl/v0/search"
-    poliflw_datasets = ["gemeenteraad", "verkiezing", "waterschappen"]
+    poliflw_datasets = ["provinciale verkiezingen",
+                        "terrorisme",
+                        "waterschapsverkiezingen",
+                        "klimaatverandering",
+                        "eerste kamer",
+                        "tweede kamer"
+                        ]
 
     def __init__(self, create_poliflw_dataset=True):
 
@@ -45,7 +51,7 @@ class Initialization:
         words = self._load_words(self.training_files)
         vocab = {}
         index = 0
-        with open(self.vocab, 'w') as f:
+        with open(self.vocab, 'w', encoding="utf8") as f:
             for word in words:
                 if word not in vocab:
                     vocab[word] = index
